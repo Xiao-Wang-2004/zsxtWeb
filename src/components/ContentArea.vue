@@ -1,8 +1,6 @@
 <template>
   <div class="content-area">
-    <header class="page-header">
-      <h2>{{ pageTitle }}</h2>
-    </header>
+    <div class="page-title">{{ pageTitle }}</div>
     <div class="page-content">
       <router-view />
     </div>
@@ -33,15 +31,14 @@ export default {
   height: 100vh;
 }
 
-.page-header {
-  margin-bottom: 20px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-}
-
-.page-header h2 {
+.page-title {
   margin: 0;
   color: #333;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
 }
 
 .page-content {
