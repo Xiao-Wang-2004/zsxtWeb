@@ -6,12 +6,24 @@
     <ul class="menu-list">
       <li v-for="(menu, index) in menuConfig" :key="index" class="menu-item">
         <div v-if="menu.children && menu.children.length > 0" class="menu-parent" @click="toggleMenu(index)">
-          <span class="menu-icon">{{ menu.icon }}</span>
+          <span class="menu-icon">
+            <img v-if="menu.icon.startsWith('http') || menu.icon.includes('.png') || menu.icon.includes('.jpg') || menu.icon.includes('.svg')" 
+                 :src="menu.icon" 
+                 :alt="menu.name" 
+                 class="icon-img" />
+            <span v-else>{{ menu.icon }}</span>
+          </span>
           <span>{{ menu.name }}</span>
           <span class="menu-toggle" :class="{ 'rotated': isOpen[index] }">▾</span>
         </div>
         <div v-else class="menu-parent no-children" @click="navigateTo(menu.path)">
-          <span class="menu-icon">{{ menu.icon }}</span>
+          <span class="menu-icon">
+            <img v-if="menu.icon.startsWith('http') || menu.icon.includes('.png') || menu.icon.includes('.jpg') || menu.icon.includes('.svg')" 
+                 :src="menu.icon" 
+                 :alt="menu.name" 
+                 class="icon-img" />
+            <span v-else>{{ menu.icon }}</span>
+          </span>
           <span>{{ menu.name }}</span>
         </div>
         <transition name="slide">
@@ -124,8 +136,6 @@ export default {
   transform: translateX(3px);
 }
 
-
-
 .menu-parent.no-children {
   justify-content: flex-start;
 }
@@ -140,6 +150,12 @@ export default {
   justify-content: center;
 }
 
+.icon-img {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
 .menu-toggle {
   font-size: 16px;
   transition: transform 0.3s ease;
@@ -151,12 +167,27 @@ export default {
   justify-content: center;
   color: #bdc3c7;
   margin-left: auto;
+  position: relative;
+}
+
+.menu-toggle::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid currentColor;
+  transition: all 0.3s ease;
 }
 
 .menu-toggle.rotated {
   transform: rotate(180deg);
   color: #3498db;
-  font-weight: bold;
+}
+
+.menu-toggle.rotated::before {
+  border-top: 8px solid #3498db;
 }
 
 .submenu-list {

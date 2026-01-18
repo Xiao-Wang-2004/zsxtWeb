@@ -3,39 +3,67 @@
     <div class="login-box">
       <div class="logo-section">
         <img src="/log.png" alt="Logo" class="logo-image" />
-        <span class="system-title">注塑生产系统</span>
+        <h1 class="system-title">注塑生产系统</h1>
       </div>
       <form class="login-form" @submit.prevent="handleLogin">
         <div class="input-group">
-          <input
-              v-model="username"
-              type="text"
-              placeholder="用户名"
-              class="input-field"
-              required
-          />
+          <el-input
+            v-model="username"
+            type="text"
+            placeholder="请输入用户名"
+            class="input-field"
+            size="large"
+            clearable
+          >
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
         </div>
         <div class="input-group">
-          <input
-              v-model="password"
-              type="password"
-              placeholder="密码"
-              class="input-field"
-              required
-          />
+          <el-input
+            v-model="password"
+            type="password"
+            placeholder="请输入密码"
+            class="input-field"
+            size="large"
+            show-password
+          >
+            <template #prefix>
+              <el-icon><Lock /></el-icon>
+            </template>
+          </el-input>
         </div>
         <div class="input-group">
-          <input
-              v-model="captcha"
-              type="text"
-              placeholder="验证码"
-              class="input-field"
-              required
-          />
-          <div class="captcha-image">{{ generatedCaptcha }}</div>
+          <el-input
+            v-model="captcha"
+            type="text"
+            placeholder="请输入验证码"
+            class="input-field"
+            size="large"
+            maxlength="4"
+          >
+            <template #prefix>
+              <el-icon><Key /></el-icon>
+            </template>
+            <template #suffix>
+              <div class="captcha-suffix" @click="generateCaptcha">
+                {{ generatedCaptcha }}
+              </div>
+            </template>
+          </el-input>
         </div>
         <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-        <button type="submit" class="login-button">登录</button>
+        <el-button 
+          type="primary" 
+          size="large" 
+          class="login-button" 
+          @click="handleLogin"
+          :loading="loading"
+        >
+          <el-icon><Right /></el-icon>
+          登录
+        </el-button>
       </form>
     </div>
   </div>
@@ -54,6 +82,7 @@ export default {
     const captcha = ref('');
     const generatedCaptcha = ref('');
     const errorMessage = ref('');
+    const loading = ref(false);
     const router = useRouter();
 
     // 生成随机验证码
@@ -74,6 +103,12 @@ export default {
       // 清空之前的错误消息
       errorMessage.value = '';
       
+      // 检查输入是否为空
+      if (!username.value.trim() || !password.value.trim() || !captcha.value.trim()) {
+        errorMessage.value = '请填写完整信息';
+        return;
+      }
+      
       // 简单验证验证码
       if (captcha.value.toLowerCase() !== generatedCaptcha.value.toLowerCase()) {
         errorMessage.value = '验证码错误';
@@ -83,6 +118,8 @@ export default {
         generateCaptcha(); // 重新生成验证码
         return;
       }
+
+      loading.value = true;
 
       try {
         // 调用登录接口 - 现在传入用户名和密码分别作为参数
@@ -142,6 +179,8 @@ export default {
         // 登录失败时清空验证码输入框并刷新验证码
         captcha.value = '';
         generateCaptcha();
+      } finally {
+        loading.value = false;
       }
     };
 
@@ -151,7 +190,9 @@ export default {
       captcha,
       generatedCaptcha,
       errorMessage,
-      handleLogin
+      loading,
+      handleLogin,
+      generateCaptcha
     };
   }
 };
@@ -182,6 +223,7 @@ export default {
 .logo-section {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-bottom: 30px;
   color: white;
 }
@@ -195,10 +237,12 @@ export default {
 }
 
 .system-title {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 600;
   letter-spacing: 1px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  margin: 0;
+  text-align: center;
 }
 
 .login-form .input-group {
@@ -208,42 +252,32 @@ export default {
 
 .input-field {
   width: 100%;
-  padding: 12px 15px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  outline: none;
-  background-color: rgba(255, 255, 255, 0.9);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }
 
-.input-field:focus {
-  background-color: rgba(255, 255, 255, 1);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-}
-
-.captcha-image {
-  position: absolute;
-  right: 5px;
-  top: 5px;
+.captcha-suffix {
   background-color: #fff;
   padding: 5px 10px;
-  border-radius: 3px;
+  border-radius: 4px;
   font-weight: bold;
   color: #12549c;
   cursor: pointer;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto 5px;
+  user-select: none;
 }
 
 .login-button {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
-  color: white;
-  border: none;
-  border-radius: 5px;
   font-size: 16px;
+  border-radius: 8px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+  border: none;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
@@ -253,6 +287,12 @@ export default {
   background: linear-gradient(135deg, #0b5ed7, #0a56c5);
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(13, 110, 253, 0.4);
+}
+
+.login-button:deep(.el-button__content) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .error-message {

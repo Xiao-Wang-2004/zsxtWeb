@@ -14,6 +14,11 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
+    port: 18080,
+    allowedHosts: [
+      '113350ebnt158.vicp.fun'
+    ],
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8099',

@@ -3,7 +3,7 @@
     <div class="spacer"></div>
     <div class="user-actions">
       <span class="user-name">当前用户: {{ userName }}</span>
-      <button class="logout-btn" @click="handleLogout">退出登录</button>
+      <el-button size="default" @click="handleLogout">退出登录</el-button>
     </div>
   </div>
 </template>
@@ -106,22 +106,5 @@ export default {
   color: #495057;
   font-weight: 500;
   font-size: 15px;
-}
-
-.logout-btn {
-  padding: 8px 16px;
-  background-color: #e9ecef; /* 浅灰色背景 */
-  color: #495057; /* 深灰色文字 */
-  border: 1px solid #ced4da; /* 边框颜色 */
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.logout-btn:hover {
-  background-color: #dde0e3; /* 悬停时稍微深一些的灰色 */
-  color: #343a40;
-  border-color: #adb5bd;
 }
 </style>

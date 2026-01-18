@@ -1,12 +1,12 @@
 export const menuConfig = [
   {
     name: '系统首页',
-    icon: '🏠',
+    icon: '/home.png',
     path: '/'
   },
   {
     name: '基本信息',
-    icon: '📁',
+    icon: '/msg.png',
     children: [
       {
         name: '单位信息',

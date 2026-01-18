@@ -1,6 +1,9 @@
 <template>
   <div class="home-page">
-    <h1>系统首页</h1>
+    <h1>
+      <img src="/home.png" alt="Home" class="home-icon" />
+      系统首页
+    </h1>
     <p>欢迎使用管理系统</p>
     <div class="welcome-card">
       <h2>功能概览</h2>
@@ -31,6 +34,15 @@ export default {
   color: #333;
   font-size: 28px;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.home-icon {
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
 }
 
 .home-page p {
