@@ -1,6 +1,5 @@
 <template>
   <div class="content-area">
-    <div class="page-title">{{ pageTitle }}</div>
     <div class="page-content">
       <router-view />
     </div>
@@ -26,19 +25,20 @@ export default {
 <style scoped>
 .content-area {
   flex: 1;
-  padding: 20px;
+  padding: 0px;
   overflow-y: auto;
   height: 100vh;
+  background-color: rgb(236, 240, 245);
 }
 
 .page-title {
   margin: 0;
   color: #333;
-  font-size: 1.5rem;
+  font-size: 10px;
   font-weight: bold;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+  border-bottom: 0px solid #eee;
 }
 
 .page-content {

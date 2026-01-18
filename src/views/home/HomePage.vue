@@ -1,19 +1,10 @@
 <template>
   <div class="home-page">
     <h1>
-      <img src="/home.png" alt="Home" class="home-icon" />
-      系统首页
+
+      系统首页还未开发
     </h1>
     <p>欢迎使用管理系统</p>
-    <div class="welcome-card">
-      <h2>功能概览</h2>
-      <ul>
-        <li>单位信息管理</li>
-        <li>用户权限控制</li>
-        <li>数据统计分析</li>
-        <li>系统配置管理</li>
-      </ul>
-    </div>
   </div>
 </template>
 

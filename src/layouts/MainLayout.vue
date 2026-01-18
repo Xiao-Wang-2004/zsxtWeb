@@ -66,17 +66,18 @@ export default {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  background-color: #f8f9fa;
+  background-color: rgb(236, 240, 245);
 }
 
 .page-title {
   margin: 0;
   color: #333;
-  font-size: 1.5rem;
+  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
   border-bottom: 1px solid #eee;
+  font-weight: 500; /* 变细字体 */
 }
 
 .content-area {
