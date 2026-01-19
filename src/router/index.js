@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import UnitInfo from '@/views/basic-info/UnitInfo.vue';
+import MoldInfo from '@/views/basic-info/MoldInfo.vue';
 import HomePage from '@/views/home/HomePage.vue';
 import Login from '@/views/auth/Login.vue';
 import MainLayout from '@/layouts/MainLayout.vue';
@@ -35,6 +36,20 @@ const routes = [
         path: '',
         name: 'UnitInfoPage',
         component: UnitInfo,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/basic-info/mold-info',
+    name: 'MoldInfo',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'MoldInfoPage',
+        component: MoldInfo,
         meta: { requiresAuth: true }
       }
     ]

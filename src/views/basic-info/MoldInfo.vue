@@ -1,10 +1,15 @@
 <template>
-  <div class="unit-info-container">
+  <div class="mold-info-container">
     <div class="info-card">
-      <p class="info-title">公司/往来单位基本信息</p>
+      <p class="info-title">模具台账管理</p>
       <el-button type="primary" class="el-button" @click="showAddForm">
         <img :src="addIcon" alt="" style="width: 16px; height: 16px; margin-right: 5px;" />
-        新增单位
+        新增模具
+      </el-button>
+      <el-button type="warning" class="el-button" @click="batchMaintain" :disabled="multipleSelection.length === 0" style="margin-left: 30px;">
+        <img :src="keepIcon" alt="" style="width: 16px; height: 16px; margin-right: 5px;" />
+        批量保养
+        <span v-if="multipleSelection.length > 0" style="margin-left: 5px;">({{ multipleSelection.length }})</span>
       </el-button>
       <el-button type="danger" class="el-button" @click="batchDelete" :disabled="multipleSelection.length === 0" style="margin-left: 30px;">
         <img :src="deleteIcon" alt="" style="width: 16px; height: 16px; margin-right: 5px;" />
@@ -15,58 +20,56 @@
       <!-- 搜索栏 -->
       <div class="search-bar" style="margin-left: 15px;">
         <el-input
-          v-model="searchForm.unitid"
-          placeholder="请输入单位编码"
+          v-model="searchForm.moldid"
+          placeholder="请输入模具编号"
           style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
         />
         <el-input
           v-model="searchForm.name"
-          placeholder="请输入单位名称"
+          placeholder="请输入模具名称"
           style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
         />
         <el-input
-          v-model="searchForm.person"
-          placeholder="请输入联系人"
+          v-model="searchForm.count"
+          placeholder="请输入穴数"
           style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
         />
         <el-input
-          v-model="searchForm.phone"
-          placeholder="请输入电话"
-          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
-        />
-        <el-input
-          v-model="searchForm.address"
-          placeholder="请输入地址"
-          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
-        />
-        <el-select
           v-model="searchForm.type"
-          placeholder="请选择类型"
-          clearable
-          style="width: 120px; margin-right: 10px; margin-bottom: 10px;"
-        >
-          <el-option label="客户" value="1" />
-          <el-option label="供应商" value="2" />
-        </el-select>
+          placeholder="请输入适用机型"
+          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
+        />
+        <el-input
+          v-model="searchForm.location"
+          placeholder="请输入存放位置"
+          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
+        />
         <el-button type="primary" @click="handleSearch" style="margin-right: 10px; margin-bottom: 10px;">搜索</el-button>
         <el-button @click="resetSearch" style="margin-bottom: 10px;">重置</el-button>
       </div>
-      <el-table :data="tableData" height="auto" style="width: 100%; margin-top: 0px; margin-bottom: 0px;" @selection-change="handleSelectionChange">
+      <el-table :data="tableData" height="auto" style="width: 100%; margin-top: 10px; margin-bottom: 10px;" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" :selectable="canDelete" />
-        <el-table-column prop="unitid" label="单位编码" width="150" />
-        <el-table-column prop="name" label="单位名称" width="180" />
-        <el-table-column prop="person" label="联系人" width="100"/>
-        <el-table-column prop="phone" label="联系方式" width="180"/>
-        <el-table-column prop="address" label="地址" width="200"/>
-        <el-table-column prop="type" label="类型" width="100">
+        <el-table-column prop="moldid" label="模具编号" width="120" />
+        <el-table-column prop="name" label="模具名称" width="150" />
+        <el-table-column prop="count" label="穴数" width="80" />
+        <el-table-column prop="type" label="适用机型" width="120" />
+        <el-table-column label="设计寿命(模)" width="120">
+          <template #default="{ row }">{{ formatNumberWithCommas(row.life) }}</template>
+        </el-table-column>
+        <el-table-column label="已使用(模)" width="120">
+          <template #default="{ row }">{{ formatNumberWithCommas(row.usedlife) }}</template>
+        </el-table-column>
+        <el-table-column prop="location" label="存放位置" width="120" />
+        <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }">
-            <span v-if="row.type === '1'" class="type-tag client-tag">客户</span>
-            <span v-else class="type-tag supplier-tag">供应商</span>
+            <span v-if="row.status === '1'" class="status-tag normal-tag">正常</span>
+            <span v-else class="status-tag maintenance-tag">需保养</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180">
-          <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+        <el-table-column label="操作" width="225">
+          <template #default="{ row }" >
+            <el-button type="warning" size="small" @click="handleMaintenance(row)">保养</el-button>
+            <el-button type="primary" size="small" @click="handleEdit(row)">修改</el-button>
             <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
@@ -86,32 +89,38 @@
     </div>
 
     <!-- 编辑表单弹窗 -->
-    <el-dialog v-model="editDialogVisible" title="编辑单位信息" width="600px">
+    <el-dialog v-model="editDialogVisible" title="编辑模具信息" width="600px">
       <el-form
         ref="editFormRef"
         :model="editForm"
         :rules="editFormRules"
         label-width="auto"
       >
-        <el-form-item label="单位编码" prop="unitid">
-          <el-input v-model="editForm.unitid" :disabled="true" />
+        <el-form-item label="模具编号" prop="moldid">
+          <el-input v-model="editForm.moldid" :disabled="true" />
         </el-form-item>
-        <el-form-item label="单位名称" prop="name">
+        <el-form-item label="模具名称" prop="name">
           <el-input v-model="editForm.name" />
         </el-form-item>
-        <el-form-item label="联系人" prop="person">
-          <el-input v-model="editForm.person" />
+        <el-form-item label="穴数" prop="count">
+          <el-input v-model="editForm.count" />
         </el-form-item>
-        <el-form-item label="联系方式" prop="phone">
-          <el-input v-model="editForm.phone" />
+        <el-form-item label="适用机型" prop="type">
+          <el-input v-model="editForm.type" />
         </el-form-item>
-        <el-form-item label="地址" prop="address">
-          <el-input v-model="editForm.address" />
+        <el-form-item label="设计寿命(模)" prop="life">
+          <el-input v-model.number="editForm.life" />
         </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="editForm.type" placeholder="选择类型">
-            <el-option label="客户" value="1" />
-            <el-option label="供应商" value="2" />
+        <el-form-item label="已使用(模)" prop="usedlife">
+          <el-input v-model.number="editForm.usedlife" />
+        </el-form-item>
+        <el-form-item label="存放位置" prop="location">
+          <el-input v-model="editForm.location" />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="editForm.status" placeholder="选择状态">
+            <el-option label="正常" value="1" />
+            <el-option label="需保养" value="2" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -122,32 +131,38 @@
     </el-dialog>
 
     <!-- 新增表单弹窗 -->
-    <el-dialog v-model="addDialogVisible" title="新增单位信息" width="600px">
+    <el-dialog v-model="addDialogVisible" title="新增模具信息" width="600px">
       <el-form
         ref="addFormRef"
         :model="addForm"
         :rules="addFormRules"
         label-width="auto"
       >
-        <el-form-item label="单位编码" prop="unitid">
-          <el-input v-model="addForm.unitid" />
+        <el-form-item label="模具编号" prop="moldid">
+          <el-input v-model="addForm.moldid" />
         </el-form-item>
-        <el-form-item label="单位名称" prop="name">
+        <el-form-item label="模具名称" prop="name">
           <el-input v-model="addForm.name" />
         </el-form-item>
-        <el-form-item label="联系人" prop="person">
-          <el-input v-model="addForm.person" />
+        <el-form-item label="穴数" prop="count">
+          <el-input v-model="addForm.count" />
         </el-form-item>
-        <el-form-item label="联系方式" prop="phone">
-          <el-input v-model="addForm.phone" />
+        <el-form-item label="适用机型" prop="type">
+          <el-input v-model="addForm.type" />
         </el-form-item>
-        <el-form-item label="地址" prop="address">
-          <el-input v-model="addForm.address" />
+        <el-form-item label="设计寿命(模)" prop="life">
+          <el-input v-model.number="addForm.life" />
         </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="addForm.type" placeholder="选择类型">
-            <el-option label="客户" value="1" />
-            <el-option label="供应商" value="2" />
+        <el-form-item label="已使用(模)" prop="usedlife">
+          <el-input v-model.number="addForm.usedlife" />
+        </el-form-item>
+        <el-form-item label="存放位置" prop="location">
+          <el-input v-model="addForm.location" />
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="addForm.status" placeholder="选择状态">
+            <el-option label="正常" value="1" />
+            <el-option label="需保养" value="2" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -160,11 +175,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus';
+import { ref, onMounted, computed } from 'vue';
+import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination, ElDialog, ElForm, ElFormItem, ElInput } from 'element-plus';
 import addIcon from '@/views/basic-info/assets/add.png';
 import deleteIcon from '@/views/basic-info/assets/delete.png';
-import { getUnitList, updateUnit, deleteUnit } from '@/api/information/unit';
+import keepIcon from '@/views/basic-info/assets/keep.png';
+import { getMoldList, updateMold, deleteMold, keepMold } from '@/api/information/mold';
+
+// 格式化数字，添加千分隔符
+const formatNumberWithCommas = (num) => {
+  if (num == null || num === '') return '';
+  return Number(num).toLocaleString('en-US');
+};
+
+// 解析带千分隔符的数字字符串为纯数字
+const parseNumberWithCommas = (str) => {
+  if (str == null || str === '') return '';
+  return str.toString().replace(/,/g, '');
+};
 
 // 分页相关变量
 const tableData = ref([]);
@@ -177,82 +205,145 @@ const multipleSelection = ref([]);
 
 // 搜索相关变量
 const searchForm = ref({
-  unitid: '',
+  moldid: '',
   name: '',
-  person: '',
-  phone: '',
-  address: '',
-  type: ''
+  count: '',
+  type: '',
+  location: ''
 });
 
 // 编辑相关变量
 const editDialogVisible = ref(false);
 const editFormRef = ref();
 const editForm = ref({
-  unitid: '',
+  moldid: '',
   name: '',
-  person: '',
-  phone: '',
-  address: '',
-  type: 1
+  count: '',
+  type: '',
+  life: '',
+  usedlife: '',
+  location: '',
+  status: ''
 });
-// 存储原始的单位编码
-const originalUnitId = ref('');
+// 存储原始的模具编号
+const originalMoldId = ref('');
 
 // 新增相关变量
 const addDialogVisible = ref(false);
 const addFormRef = ref();
 const addForm = ref({
-  unitid: '',
+  moldid: '',
   name: '',
-  person: '',
-  phone: '',
-  address: '',
-  type: 1
+  count: '',
+  type: '',
+  life: '',
+  usedlife: '',
+  location: '',
+  status: ''
 });
 
 // 表单验证规则
 const editFormRules = ref({
-  unitid: [
-    { required: true, message: '单位编码不能为空', trigger: 'blur' }
+  moldid: [
+    { required: true, message: '模具编号不能为空', trigger: 'blur' }
   ],
   name: [
-    { required: true, message: '单位名称不能为空', trigger: 'blur' }
+    { required: true, message: '模具名称不能为空', trigger: 'blur' }
+  ],
+  count: [
+    { required: true, message: '穴数不能为空', trigger: 'blur' }
   ],
   type: [
-    { required: true, message: '类型不能为空', trigger: 'change' }
+    { required: true, message: '适用机型不能为空', trigger: 'blur' }
   ],
-  phone: [
-    { pattern: /^.{0}$|^1[3-9]\d{9}$/, message: '请输入正确的手机号码格式', trigger: 'blur' } // 允许空值，但非空时必须符合格式
+  life: [
+    { required: true, message: '设计寿命不能为空', trigger: 'blur' },
+    { pattern: /^\d+$/, message: '设计寿命必须为数字', trigger: 'blur' }
+  ],
+  usedlife: [
+    { required: true, message: '已使用数量不能为空', trigger: 'blur' },
+    { pattern: /^\d+$/, message: '已使用数量必须为数字', trigger: 'blur' }
+  ],
+  location: [
+    { required: true, message: '存放位置不能为空', trigger: 'blur' }
+  ],
+  status: [
+    { required: true, message: '状态不能为空', trigger: 'change' }
   ]
 });
 
 // 新增表单验证规则
 const addFormRules = ref({
-  unitid: [
-    { required: true, message: '单位编码不能为空', trigger: 'blur' }
+  moldid: [
+    { required: true, message: '模具编号不能为空', trigger: 'blur' }
   ],
   name: [
-    { required: true, message: '单位名称不能为空', trigger: 'blur' }
+    { required: true, message: '模具名称不能为空', trigger: 'blur' }
+  ],
+  count: [
+    { required: true, message: '穴数不能为空', trigger: 'blur' }
   ],
   type: [
-    { required: true, message: '类型不能为空', trigger: 'change' }
+    { required: true, message: '适用机型不能为空', trigger: 'blur' }
   ],
-  phone: [
-    { pattern: /^.{0}$|^1[3-9]\d{9}$/, message: '请输入正确的手机号码格式', trigger: 'blur' } // 允许空值，但非空时必须符合格式
+  life: [
+    { required: true, message: '设计寿命不能为空', trigger: 'blur' },
+    { pattern: /^\d+$/, message: '设计寿命必须为数字', trigger: 'blur' }
+  ],
+  usedlife: [
+    { required: true, message: '已使用数量不能为空', trigger: 'blur' },
+    { pattern: /^\d+$/, message: '已使用数量必须为数字', trigger: 'blur' }
+  ],
+  location: [
+    { required: true, message: '存放位置不能为空', trigger: 'blur' }
+  ],
+  status: [
+    { required: true, message: '状态不能为空', trigger: 'change' }
   ]
 });
 
 // 编辑处理函数
 const handleEdit = (row) => {
-  // 保存原始单位编码
-  originalUnitId.value = row.unitid;
-  console.log('保存原始单位编码:', originalUnitId.value); // 调试日志
-  // 填充表单数据
+  // 保存原始模具编号
+  originalMoldId.value = row.moldid;
+  console.log('保存原始模具编号:', originalMoldId.value); // 调试日志
+  // 填充表单数据，直接使用后端API字段
   editForm.value = { ...row };
   console.log('填充表单数据:', editForm.value); // 调试日志
   // 显示编辑对话框
   editDialogVisible.value = true;
+};
+
+// 保养处理函数
+const handleMaintenance = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要对模具 "${row.name}" 进行保养吗？`,
+      '确认保养',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    );
+    
+    // 调用保养接口，将单条数据也放入数组中进行保养
+    const response = await keepMold({ moldids: [row.moldid] });
+    
+    if (response.code === 200) {
+      ElMessage.success('保养成功');
+      // 重新获取数据
+      fetchData();
+    } else {
+      ElMessage.error(response.msg || '保养失败');
+    }
+  } catch (error) {
+    // 用户取消保养或出现错误
+    if (error !== 'cancel') {
+      console.error('保养模具失败:', error);
+      ElMessage.error('保养失败，请稍后重试');
+    }
+  }
 };
 
 // 删除处理函数
@@ -260,7 +351,7 @@ const handleDelete = async (row) => {
   // 确认删除提示
   try {
     await ElMessageBox.confirm(
-      `确定要删除单位 "${row.name}" 吗？`,
+      `确定要删除模具 "${row.name}" 吗？`,
       '确认删除',
       {
         confirmButtonText: '确定',
@@ -270,7 +361,7 @@ const handleDelete = async (row) => {
     );
     
     // 调用删除接口，将单条数据也放入数组中进行删除
-    const response = await deleteUnit({ unitids: [row.unitid] });
+    const response = await deleteMold({ moldids: [row.moldid] });
     
     if (response.code === 200) {
       ElMessage.success('删除成功');
@@ -282,7 +373,7 @@ const handleDelete = async (row) => {
   } catch (error) {
     // 用户取消删除或出现错误
     if (error !== 'cancel') {
-      console.error('删除单位失败:', error);
+      console.error('删除模具失败:', error);
       ElMessage.error('删除失败，请稍后重试');
     }
   }
@@ -295,17 +386,19 @@ const submitEditForm = async (formEl) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       try {
-        // 使用原始单位编码作为 id 参数，确保即使单位编码字段意外被修改也能正确更新
+        // 使用原始模具编号作为 id 参数，确保即使模具编号字段意外被修改也能正确更新
         const requestData = {
           ...editForm.value,
-          id: originalUnitId.value  // 使用原始单位编码作为 id
+          life: parseInt(editForm.value.life),  // 转换为整型
+          usedlife: parseInt(editForm.value.usedlife),  // 转换为整型
+          moldid: originalMoldId.value  // 使用原始模具编号作为 id
         };
         
         console.log('发送请求数据:', requestData); // 调试日志
         
-        const response = await updateUnit(requestData);
+        const response = await updateMold(requestData);
         if (response.code === 200) {
-          ElMessage.success('单位信息已更新');
+          ElMessage.success('模具信息已更新');
           editDialogVisible.value = false;
           // 重新获取数据
           fetchData();
@@ -313,7 +406,7 @@ const submitEditForm = async (formEl) => {
           ElMessage.error(response.msg || '更新失败');
         }
       } catch (error) {
-        console.error('更新单位信息失败:', error);
+        console.error('更新模具信息失败:', error);
         ElMessage.error('更新失败，请稍后重试');
       }
     } else {
@@ -335,12 +428,14 @@ const cancelEditForm = () => {
 const showAddForm = () => {
   // 重置表单
   addForm.value = {
-    unitid: '',
+    moldid: '',
     name: '',
-    person: '',
-    phone: '',
-    address: '',
-    type: 1
+    count: '',
+    type: '',
+    life: '',
+    usedlife: '',
+    location: '',
+    status: ''
   };
   
   if (addFormRef.value) {
@@ -358,17 +453,23 @@ const submitAddForm = async (formEl) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       try {
-        // 对于新增操作，也调用updateUnit接口，按照需求要求
+        // 只传递指定的字段
         const requestData = {
-          ...addForm.value,
-          id: addForm.value.unitid  // 使用单位编码作为 id
+          moldid: addForm.value.moldid,
+          name: addForm.value.name,
+          count: addForm.value.count,  // 映射字段
+          type: addForm.value.type,  // 映射字段
+          life: addForm.value.life,  // 映射字段
+          usedlife: addForm.value.usedlife,  // 映射字段
+          location: addForm.value.location,
+          status: addForm.value.status
         };
         
         console.log('发送新增请求数据:', requestData); // 调试日志
         
-        const response = await updateUnit(requestData);
+        const response = await updateMold(requestData);
         if (response.code === 200) {
-          ElMessage.success('单位信息已添加');
+          ElMessage.success('模具信息已添加');
           addDialogVisible.value = false;
           // 重新获取数据
           fetchData();
@@ -376,7 +477,7 @@ const submitAddForm = async (formEl) => {
           ElMessage.error(response.msg || '添加失败');
         }
       } catch (error) {
-        console.error('添加单位信息失败:', error);
+        console.error('添加模具信息失败:', error);
         ElMessage.error('添加失败，请稍后重试');
       }
     } else {
@@ -408,6 +509,47 @@ const canDelete = (row, index) => {
   return true;
 };
 
+// 批量保养处理函数
+const batchMaintain = async () => {
+  if (multipleSelection.value.length === 0) {
+    ElMessage.warning('请至少选择一项需要保养的数据');
+    return;
+  }
+  
+  try {
+    await ElMessageBox.confirm(
+      `确定要对选中的 ${multipleSelection.value.length} 项模具进行保养吗？`,
+      '确认批量保养',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    );
+    
+    // 收集要保养的模具编号
+    const moldids = multipleSelection.value.map(item => item.moldid);
+    
+    // 调用批量保养接口
+    const response = await keepMold({ moldids });
+    
+    if (response.code === 200) {
+      ElMessage.success(`成功对 ${multipleSelection.value.length} 条模具进行了保养`);
+      multipleSelection.value = [];
+      // 重新获取数据
+      fetchData();
+    } else {
+      ElMessage.error(response.msg || '批量保养失败');
+    }
+  } catch (error) {
+    // 用户取消保养或出现错误
+    if (error !== 'cancel') {
+      console.error('批量保养失败:', error);
+      ElMessage.error('批量保养失败，请稍后重试');
+    }
+  }
+};
+
 // 批量删除处理函数
 const batchDelete = async () => {
   if (multipleSelection.value.length === 0) {
@@ -426,11 +568,11 @@ const batchDelete = async () => {
       }
     );
     
-    // 收集要删除的单位编码
-    const unitids = multipleSelection.value.map(item => item.unitid);
+    // 收集要删除的模具编号
+    const moldids = multipleSelection.value.map(item => item.moldid);
     
     // 调用批量删除接口
-    const response = await deleteUnit({ unitids });
+    const response = await deleteMold({ moldids });
     
     if (response.code === 200) {
       ElMessage.success(`成功删除了 ${multipleSelection.value.length} 条数据`);
@@ -460,12 +602,11 @@ const handleSearch = () => {
 const resetSearch = () => {
   // 清空搜索条件
   searchForm.value = {
-    unitid: '',
+    moldid: '',
     name: '',
-    person: '',
-    phone: '',
-    address: '',
-    type: ''
+    count: '',
+    type: '',
+    location: ''
   };
   // 重置到第一页并重新获取所有数据
   currentPage.value = 1;
@@ -491,15 +632,14 @@ const fetchData = async () => {
     const params = {
       page: currentPage.value,
       size: pageSize.value,
-      unitid: searchForm.value.unitid || undefined,
+      moldid: searchForm.value.moldid || undefined,
       name: searchForm.value.name || undefined,
-      person: searchForm.value.person || undefined,
-      phone: searchForm.value.phone || undefined,
-      address: searchForm.value.address || undefined,
-      type: searchForm.value.type || undefined
+      count: searchForm.value.count || undefined,
+      type: searchForm.value.type || undefined,
+      location: searchForm.value.location || undefined
     };
     
-    const response = await getUnitList(params);
+    const response = await getMoldList(params);
     console.log('API Response:', response); // 调试日志
     
     if (response.code === 200) {
@@ -518,15 +658,15 @@ const fetchData = async () => {
         total.value = response.data ? response.data.length || 0 : 0;
       }
     } else {
-      console.error('获取单位列表失败:', response.msg);
-      ElMessage.error(response.msg || '获取单位列表失败');
+      console.error('获取模具列表失败:', response.msg);
+      ElMessage.error(response.msg || '获取模具列表失败');
     }
   } catch (error) {
-    console.error('获取单位列表失败:', error);
+    console.error('获取模具列表失败:', error);
   }
 };
 
-// 页面加载时获取单位列表数据
+// 页面加载时获取模具列表数据
 onMounted(async () => {
   fetchData();
 });
@@ -535,7 +675,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.unit-info-container {
+.mold-info-container {
   width: 100%;
   height: 100%;
   padding-top: 0px;
@@ -603,7 +743,7 @@ h2 {
   margin-left: 30px;
 }
 
-.type-tag {
+.status-tag {
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
@@ -612,17 +752,17 @@ h2 {
   font-weight: 500;
 }
 
-.client-tag {
+.normal-tag {
   background-color: #ecf5ff;
   color: #409EFF;
   border: 1px solid #b3d8ff;
   height: 15px;
 }
 
-.supplier-tag {
+.maintenance-tag {
   background-color: #f0f9eb;
-  color: #67C23A;
-  border: 1px solid #c2e7b0;
+  color: #e6a23c;
+  border: 1px solid #f5dab1;
   height: 15px;
 }
 

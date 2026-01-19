@@ -28,6 +28,7 @@ export default {
       // 根据当前路由确定页面标题
       const routeMap = {
         '/basic-info/unit-info': '单位信息',
+        '/basic-info/mold-info': '模具信息',
         '/': '首页'
       };
       return routeMap[this.$route.path] || '页面';
