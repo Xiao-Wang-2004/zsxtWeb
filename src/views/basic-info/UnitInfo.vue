@@ -11,16 +11,57 @@
         批量删除
         <span v-if="multipleSelection.length > 0" style="margin-left: 5px;">({{ multipleSelection.length }})</span>
       </el-button>
-      <el-table :data="tableData" height="440" style="width: 100%; margin-top: 0px;" @selection-change="handleSelectionChange">
+      
+      <!-- 搜索栏 -->
+      <div class="search-bar" style="margin-left: 15px;">
+        <el-input
+          v-model="searchForm.unitid"
+          placeholder="请输入单位编码"
+          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
+        />
+        <el-input
+          v-model="searchForm.name"
+          placeholder="请输入单位名称"
+          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
+        />
+        <el-input
+          v-model="searchForm.person"
+          placeholder="请输入联系人"
+          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
+        />
+        <el-input
+          v-model="searchForm.phone"
+          placeholder="请输入电话"
+          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
+        />
+        <el-input
+          v-model="searchForm.address"
+          placeholder="请输入地址"
+          style="width: 150px; margin-right: 10px; margin-bottom: 10px;"
+        />
+        <el-select
+          v-model="searchForm.type"
+          placeholder="请选择类型"
+          clearable
+          style="width: 120px; margin-right: 10px; margin-bottom: 10px;"
+        >
+          <el-option label="客户" value="1" />
+          <el-option label="供应商" value="2" />
+        </el-select>
+        <el-button type="primary" @click="handleSearch" style="margin-right: 10px; margin-bottom: 10px;">搜索</el-button>
+        <el-button @click="resetSearch" style="margin-bottom: 10px;">重置</el-button>
+      </div>
+      <el-table :data="tableData" height="auto" style="width: 100%; margin-top: 0px; margin-bottom: 0px;" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" :selectable="canDelete" />
         <el-table-column prop="unitid" label="单位编码" width="150" />
         <el-table-column prop="name" label="单位名称" width="180" />
-        <el-table-column prop="person" label="联系人" width="150"/>
+        <el-table-column prop="person" label="联系人" width="100"/>
         <el-table-column prop="phone" label="联系方式" width="180"/>
         <el-table-column prop="address" label="地址" width="200"/>
-        <el-table-column prop="type" label="类型" width="180">
+        <el-table-column prop="type" label="类型" width="100">
           <template #default="{ row }">
-            {{ row.type === '1' ? '客户' : '供应商' }}
+            <span v-if="row.type === '1'" class="type-tag client-tag">客户</span>
+            <span v-else class="type-tag supplier-tag">供应商</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180">
@@ -40,7 +81,7 @@
         :pager-count="5"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        style="margin-top: 20px; text-align: center;"
+        style="margin-top: 0px; text-align: center;"
       />
     </div>
 
@@ -69,8 +110,8 @@
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="editForm.type" placeholder="选择类型">
-            <el-option label="客户" :value="1" />
-            <el-option label="供应商" :value="0" />
+            <el-option label="客户" value="1" />
+            <el-option label="供应商" value="2" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -105,8 +146,8 @@
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="addForm.type" placeholder="选择类型">
-            <el-option label="客户" :value="1" />
-            <el-option label="供应商" :value="0" />
+            <el-option label="客户" value="1" />
+            <el-option label="供应商" value="2" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -123,7 +164,6 @@ import { ref, onMounted } from 'vue';
 import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus';
 import addIcon from '@/views/basic-info/assets/add.png';
 import deleteIcon from '@/views/basic-info/assets/delete.png';
-import closeIcon from '@/views/basic-info/assets/close.png';
 import { getUnitList, updateUnit, deleteUnit } from '@/api/information/unit';
 
 // 分页相关变量
@@ -134,6 +174,16 @@ const total = ref(0);
 
 // 批量删除相关变量
 const multipleSelection = ref([]);
+
+// 搜索相关变量
+const searchForm = ref({
+  unitid: '',
+  name: '',
+  person: '',
+  phone: '',
+  address: '',
+  type: ''
+});
 
 // 编辑相关变量
 const editDialogVisible = ref(false);
@@ -399,6 +449,29 @@ const batchDelete = async () => {
   }
 };
 
+// 搜索处理函数
+const handleSearch = () => {
+  // 重置到第一页，使用当前的搜索条件重新获取数据
+  currentPage.value = 1;
+  fetchData();
+};
+
+// 重置搜索条件
+const resetSearch = () => {
+  // 清空搜索条件
+  searchForm.value = {
+    unitid: '',
+    name: '',
+    person: '',
+    phone: '',
+    address: '',
+    type: ''
+  };
+  // 重置到第一页并重新获取所有数据
+  currentPage.value = 1;
+  fetchData();
+};
+
 // 分页大小改变处理函数
 const handleSizeChange = (val) => {
   pageSize.value = val;
@@ -414,9 +487,16 @@ const handleCurrentChange = (val) => {
 // 获取数据函数
 const fetchData = async () => {
   try {
+    // 将搜索条件加入请求参数
     const params = {
       page: currentPage.value,
-      size: pageSize.value
+      size: pageSize.value,
+      unitid: searchForm.value.unitid || undefined,
+      name: searchForm.value.name || undefined,
+      person: searchForm.value.person || undefined,
+      phone: searchForm.value.phone || undefined,
+      address: searchForm.value.address || undefined,
+      type: searchForm.value.type || undefined
     };
     
     const response = await getUnitList(params);
@@ -456,8 +536,10 @@ onMounted(async () => {
 
 <style scoped>
 .unit-info-container {
-
-  padding: 0px;
+  width: 100%;
+  height: 100%;
+  padding: 15px;
+  box-sizing: border-box;
 }
 
 h2 {
@@ -473,6 +555,9 @@ h2 {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   position: relative;
   margin-top: 0px; /* 与标题的间距 */
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  height: auto;
 }
 
 .info-card::before {
@@ -518,5 +603,31 @@ h2 {
   margin-left: 30px;
 }
 
+.type-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.client-tag {
+  background-color: #ecf5ff;
+  color: #409EFF;
+  border: 1px solid #b3d8ff;
+  height: 15px;
+}
+
+.supplier-tag {
+  background-color: #f0f9eb;
+  color: #67C23A;
+  border: 1px solid #c2e7b0;
+  height: 15px;
+}
+
+.search-bar{
+  padding-bottom: 0px;
+}
 
 </style>
