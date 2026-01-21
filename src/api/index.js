@@ -12,3 +12,4 @@ export {
 // Also export individual functions for convenience
 export { login } from './auth/loginApi';
 export { getUnitList } from './information/unit';
+export { getMoldNumberList } from './information/moldNumber';

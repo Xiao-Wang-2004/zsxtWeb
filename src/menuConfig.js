@@ -15,6 +15,10 @@ export const menuConfig = [
       {
         name: '模具信息',
         path: '/basic-info/mold-info'
+      },
+      {
+        name: '模具料号',
+        path: '/basic-info/mold-number'
       }
     ]
   }

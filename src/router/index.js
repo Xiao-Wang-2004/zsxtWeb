@@ -4,6 +4,7 @@ import MoldInfo from '@/views/basic-info/MoldInfo.vue';
 import HomePage from '@/views/home/HomePage.vue';
 import Login from '@/views/auth/Login.vue';
 import MainLayout from '@/layouts/MainLayout.vue';
+import MoldNumber from "@/views/basic-info/MoldNumber.vue";
 
 const routes = [
   {
@@ -50,6 +51,20 @@ const routes = [
         path: '',
         name: 'MoldInfoPage',
         component: MoldInfo,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/basic-info/mold-number',
+    name: 'MoldNumber',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'MoldNumberPage',
+        component: MoldNumber,
         meta: { requiresAuth: true }
       }
     ]
