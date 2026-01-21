@@ -51,7 +51,7 @@
         <el-table-column type="selection" width="55" :selectable="canDelete" />
         <el-table-column prop="moldid" label="模具编号" width="120" />
         <el-table-column prop="name" label="模具名称" width="150" />
-        <el-table-column prop="count" label="穴数" width="80" />
+        <el-table-column prop="count" label="穴数" width="70" />
         <el-table-column prop="type" label="适用机型" width="120" />
         <el-table-column label="设计寿命(模)" width="120">
           <template #default="{ row }">{{ formatNumberWithCommas(row.life) }}</template>
@@ -60,7 +60,28 @@
           <template #default="{ row }">{{ formatNumberWithCommas(row.usedlife) }}</template>
         </el-table-column>
         <el-table-column prop="location" label="存放位置" width="120" />
-        <el-table-column prop="status" label="状态" width="90">
+        <el-table-column prop="status" label="状态" width="100">
+          <template #header>
+            <span>状态</span>
+            <el-popover
+              effect="light"
+              trigger="hover"
+              :show-after="0"
+              :hide-after="0"
+              :enterable="false"
+              placement="top"
+              width="240"
+              content="模具剩余使用寿命低于20%需保养"
+            >
+              <template #reference>
+                <img 
+                  :src="ringIcon" 
+                  alt="" 
+                  style="width: 16px; height: 16px; margin-left: 5px; cursor: pointer; vertical-align: middle;" 
+                />
+              </template>
+            </el-popover>
+          </template>
           <template #default="{ row }">
             <span v-if="row.status === '1'" class="status-tag normal-tag">正常</span>
             <span v-else class="status-tag maintenance-tag">需保养</span>
@@ -180,6 +201,7 @@ import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination
 import addIcon from '@/views/basic-info/assets/add.png';
 import deleteIcon from '@/views/basic-info/assets/delete.png';
 import keepIcon from '@/views/basic-info/assets/keep.png';
+import ringIcon from '@/views/basic-info/assets/ring.png';
 import { getMoldList, updateMold, deleteMold, keepMold } from '@/api/information/mold';
 
 // 格式化数字，添加千分隔符
