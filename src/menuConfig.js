@@ -23,6 +23,10 @@ export const menuConfig = [
       {
         name: '原料信息',
         path: '/basic-info/number-info'
+      },
+      {
+        name: '机台设备',
+        path: '/basic-info/machine-info'
       }
     ]
   }

@@ -30,7 +30,8 @@ export default {
         '/basic-info/unit-info': '单位信息',
         '/basic-info/mold-info': '模具信息',
         '/basic-info/mold-number': '模具料号',
-        '/basic-info/number-info': '原料信息'
+        '/basic-info/number-info': '原料信息',
+        '/basic-info/machine-info': '机台设备',
       };
       return routeMap[this.$route.path] || '页面';
     }
