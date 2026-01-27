@@ -97,7 +97,14 @@
           <el-input v-model="editForm.color" />
         </el-form-item>
         <el-form-item label="供应商编号" prop="unitid">
-          <el-input v-model="editForm.unitid" />
+          <el-select v-model="editForm.unitid" placeholder="请选择供应商编号" style="width: 100%">
+            <el-option
+              v-for="item in supplierOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="当前库存(kg)" prop="inventory">
           <el-input v-model="editForm.inventory" @input="handleInventoryInput($event, 'edit')" @keydown="(event) => {
@@ -134,7 +141,14 @@
           <el-input v-model="addForm.color" />
         </el-form-item>
         <el-form-item label="供应商编号" prop="unitid">
-          <el-input v-model="addForm.unitid" />
+          <el-select v-model="addForm.unitid" placeholder="请选择供应商编号" style="width: 100%">
+            <el-option
+              v-for="item in supplierOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="当前库存(kg)" prop="inventory">
           <el-input v-model="addForm.inventory" @input="handleInventoryInput($event, 'add')" @keydown="(event) => {
@@ -154,16 +168,20 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
-import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination, ElDialog, ElForm, ElFormItem, ElInput } from 'element-plus';
+import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus';
 import addIcon from '@/views/basic-info/assets/add.png';
 import deleteIcon from '@/views/basic-info/assets/delete.png';
 import { getNumberInfoList, updateNumberInfo, deleteNumberInfo } from '@/api/information/numberInfo';
+import { getUnitList } from '@/api/information/unit';
 
 // 分页相关变量
 const tableData = ref([]);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+
+// 供应商下拉框相关变量
+const supplierOptions = ref([]);
 
 // 批量删除相关变量
 const multipleSelection = ref([]);
@@ -305,7 +323,7 @@ watch(() => addFormBackendErrors.value.unitid, (newValue) => {
 }, { immediate: true });
 
 // 编辑处理函数
-const handleEdit = (row) => {
+const handleEdit = async (row) => {
   // 保存原始原料编号
   originalNumberId.value = row.numberid;
   console.log('保存原始原料编号:', originalNumberId.value); // 调试日志
@@ -316,6 +334,10 @@ const handleEdit = (row) => {
     editForm.value.unitid = row.unitid;
   }
   console.log('填充表单数据:', editForm.value); // 调试日志
+  
+  // 获取供应商列表
+  await fetchSupplierList();
+  
   // 显示编辑对话框
   editDialogVisible.value = true;
 };
@@ -402,7 +424,7 @@ const cancelEditForm = () => {
 };
 
 // 显示新增表单
-const showAddForm = () => {
+const showAddForm = async () => {
   // 重置表单
   addForm.value = {
     numberid: '',
@@ -417,6 +439,9 @@ const showAddForm = () => {
     addFormRef.value.clearValidate(); // 清除验证状态
   }
 
+  // 获取供应商列表
+  await fetchSupplierList();
+  
   // 显示新增对话框
   addDialogVisible.value = true;
 };
@@ -619,9 +644,37 @@ const fetchData = async () => {
   }
 };
 
+// 获取供应商列表
+const fetchSupplierList = async () => {
+  try {
+    const params = {
+      type: 2  // 获取类型为2的供应商
+    };
+    const response = await getUnitList(params);
+    
+    if (response.code === 200) {
+      // 过滤出type为2的供应商，并提取unitid作为选项
+      supplierOptions.value = response.data && response.data.list 
+        ? response.data.list.filter(item => item.type === '2').map(item => ({
+            value: item.unitid,
+            label: item.unitid
+          }))
+        : [];
+    } else {
+      console.error('获取供应商列表失败:', response.msg);
+      ElMessage.error(response.msg || '获取供应商列表失败');
+    }
+  } catch (error) {
+    console.error('获取供应商列表失败:', error);
+    ElMessage.error('获取供应商列表失败，请稍后重试');
+  }
+};
+
 // 页面加载时获取原料列表数据
 onMounted(async () => {
-  fetchData();
+  await fetchData();
+  // 获取供应商列表
+  await fetchSupplierList();
 });
 </script>
 

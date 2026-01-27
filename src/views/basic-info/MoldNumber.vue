@@ -90,7 +90,14 @@
           <el-input v-model="editForm.part" />
         </el-form-item>
         <el-form-item label="使用料号" prop="numberid">
-          <el-input v-model="editForm.numberid" />
+          <el-select v-model="editForm.numberid" placeholder="请选择使用料号">
+            <el-option
+              v-for="item in numberOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="标准用量(g)" prop="quantity">
           <el-input v-model="editForm.quantity" />
@@ -120,7 +127,14 @@
           <el-input v-model="addForm.part" />
         </el-form-item>
         <el-form-item label="使用料号" prop="numberid">
-          <el-input v-model="addForm.numberid" />
+          <el-select v-model="addForm.numberid" placeholder="请选择使用料号">
+            <el-option
+              v-for="item in numberOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="标准用量(g)" prop="quantity">
           <el-input v-model="addForm.quantity" />
@@ -139,10 +153,11 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination, ElDialog, ElForm, ElFormItem, ElInput } from 'element-plus';
+import { ElButton, ElTable, ElTableColumn, ElMessage, ElMessageBox, ElPagination, ElDialog, ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus';
 import addIcon from '@/views/basic-info/assets/add.png';
 import deleteIcon from '@/views/basic-info/assets/delete.png';
 import { getMoldNumberList, updateMoldNumber, deleteMoldNumber } from '@/api/information/moldNumber';
+import { getNumberInfoList } from '@/api/information/numberInfo';
 
 // 分页相关变量
 const tableData = ref([]);
@@ -187,6 +202,9 @@ const addForm = ref({
   remarks: ''
 });
 
+// 料号列表相关变量
+const numberOptions = ref([]);
+
 // 表单验证规则
 const editFormRules = ref({
   moldid: [
@@ -230,13 +248,17 @@ const addFormRules = ref({
 });
 
 // 编辑处理函数
-const handleEdit = (row) => {
+const handleEdit = async (row) => {
   // 保存原始模具编号
   originalMoldId.value = row.moldid;
   console.log('保存原始模具编号:', originalMoldId.value); // 调试日志
   // 填充表单数据
   editForm.value = { ...row };
   console.log('填充表单数据:', editForm.value); // 调试日志
+  
+  // 获取料号列表
+  await fetchNumberOptions();  
+  
   // 显示编辑对话框
   editDialogVisible.value = true;
 };
@@ -322,7 +344,7 @@ const cancelEditForm = () => {
 };
 
 // 显示新增表单
-const showAddForm = () => {
+const showAddForm = async () => {
   // 重置表单
   addForm.value = {
     moldid: '',
@@ -335,6 +357,9 @@ const showAddForm = () => {
   if (addFormRef.value) {
     addFormRef.value.clearValidate(); // 清除验证状态
   }
+  
+  // 获取料号列表
+  await fetchNumberOptions();  
   
   // 显示新增对话框
   addDialogVisible.value = true;
@@ -475,6 +500,38 @@ const handleCurrentChange = (val) => {
   fetchData();
 };
 
+// 获取料号列表函数
+const fetchNumberOptions = async () => {
+  try {
+    const params = {};
+    const response = await getNumberInfoList(params);
+    
+    if (response.code === 200) {
+      if (response.data && Array.isArray(response.data.list)) {
+        // 符合预期的分页数据结构
+        numberOptions.value = response.data.list.map(item => ({
+          value: item.numberid,
+          label: item.numberid
+        }));
+      } else if (Array.isArray(response.data)) {
+        // 如果直接返回数组
+        numberOptions.value = response.data.map(item => ({
+          value: item.numberid,
+          label: item.numberid
+        }));
+      } else {
+        // 其他情况
+        numberOptions.value = [];
+      }
+    } else {
+      console.error('获取料号列表失败:', response.msg);
+      ElMessage.error(response.msg || '获取料号列表失败');
+    }
+  } catch (error) {
+    console.error('获取料号列表失败:', error);
+  }
+};
+
 // 获取数据函数
 const fetchData = async () => {
   try {
@@ -518,7 +575,7 @@ const fetchData = async () => {
 
 // 页面加载时获取模具料号列表数据
 onMounted(async () => {
-  fetchData();
+  await fetchData();
 });
 </script>
 
