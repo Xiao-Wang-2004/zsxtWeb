@@ -8,6 +8,7 @@ import MoldNumber from "@/views/basic-info/MoldNumber.vue";
 import NumberInfo from "@/views/basic-info/NumberInfo.vue";
 import MachineInfo from "@/views/basic-info/MachineInfo.vue";
 import ProductInfo from "@/views/basic-info/ProductInfo.vue";
+import Create from "@/views/order/Create.vue";
 
 const routes = [
   {
@@ -110,6 +111,20 @@ const routes = [
         path: '',
         name: 'ProductInfoPage',
         component: ProductInfo,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/order/create',
+    name: 'OrderCreate',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'OrderCreatePage',
+        component: Create,
         meta: { requiresAuth: true }
       }
     ]

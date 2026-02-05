@@ -33,6 +33,7 @@ export default {
         '/basic-info/number-info': '原料信息',
         '/basic-info/machine-info': '机台设备',
         '/basic-info/product-info': '产品信息',
+        '/order/create': '订单生成',
       };
       return routeMap[this.$route.path] || '页面';
     }

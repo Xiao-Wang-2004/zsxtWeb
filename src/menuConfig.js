@@ -33,5 +33,15 @@ export const menuConfig = [
         path: '/basic-info/product-info'
       }
     ]
+  },
+  {
+    name: '订单管理',
+    icon: '/order.png',
+    children: [
+      {
+        name: '订单生成',
+        path: '/order/create'
+      }
+    ]
   }
 ];

@@ -4,6 +4,7 @@ import { getMoldNumberList } from './moldNumber';
 import { getNumberInfoList } from './numberInfo';
 import { getMachineInfoList } from './machine';
 import { getProductInfoList } from './product';
+import { getOrderList, createOrder, updateOrder, deleteOrder, getOrderDetail } from './order';
 
 export {
   getUnitList,
@@ -11,5 +12,10 @@ export {
   getMoldNumberList,
   getNumberInfoList,
   getMachineInfoList,
-  getProductInfoList
+  getProductInfoList,
+  getOrderList,
+  createOrder,
+  updateOrder,
+  deleteOrder,
+  getOrderDetail
 };
