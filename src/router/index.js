@@ -10,6 +10,7 @@ import MachineInfo from "@/views/basic-info/MachineInfo.vue";
 import ProductInfo from "@/views/basic-info/ProductInfo.vue";
 import Create from "@/views/order/Create.vue";
 import InLibrary from "@/views/order/InLibrary.vue";
+import OutLibrary from "@/views/order/OutLibrary.vue";
 
 const routes = [
   {
@@ -140,6 +141,20 @@ const routes = [
         path: '',
         name: 'OrderInLibraryPage',
         component: InLibrary,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/order/out-library',
+    name: 'OrderOutLibrary',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'OrderOutLibraryPage',
+        component: OutLibrary,
         meta: { requiresAuth: true }
       }
     ]

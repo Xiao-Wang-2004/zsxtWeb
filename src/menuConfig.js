@@ -45,6 +45,10 @@ export const menuConfig = [
       {
         name: '订单入库',
         path: '/order/in-library'
+      },
+      {
+        name: '订单出库',
+        path: '/order/out-library'
       }
     ]
   }

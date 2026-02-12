@@ -26,3 +26,8 @@ export function addLibrary(data) {
   return post('/order_management/library/add', data);
 }
 
+// 获取出库列表
+export function getOutLibraryList(data) {
+  return post('/order_management/library/getList', data);
+}
+

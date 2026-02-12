@@ -34,6 +34,8 @@ export default {
         '/basic-info/machine-info': '机台设备',
         '/basic-info/product-info': '产品信息',
         '/order/create': '订单生成',
+        '/order/in-library': '订单入库',
+        '/order/out-library': '订单出库',
       };
       return routeMap[this.$route.path] || '页面';
     }
