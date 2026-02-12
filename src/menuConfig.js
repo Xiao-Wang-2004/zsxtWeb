@@ -41,6 +41,10 @@ export const menuConfig = [
       {
         name: '订单生成',
         path: '/order/create'
+      },
+      {
+        name: '订单入库',
+        path: '/order/in-library'
       }
     ]
   }

@@ -16,3 +16,13 @@ export function addOrder(data) {
   return post('/order_management/create/add', data);
 }
 
+// 获取入库编号
+export function getEntryId(data) {
+  return post('/order_management/library/getEntryid', data);
+}
+
+// 添加入库记录
+export function addLibrary(data) {
+  return post('/order_management/library/add', data);
+}
+

@@ -9,6 +9,7 @@ import NumberInfo from "@/views/basic-info/NumberInfo.vue";
 import MachineInfo from "@/views/basic-info/MachineInfo.vue";
 import ProductInfo from "@/views/basic-info/ProductInfo.vue";
 import Create from "@/views/order/Create.vue";
+import InLibrary from "@/views/order/InLibrary.vue";
 
 const routes = [
   {
@@ -125,6 +126,20 @@ const routes = [
         path: '',
         name: 'OrderCreatePage',
         component: Create,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/order/in-library',
+    name: 'OrderInLibrary',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'OrderInLibraryPage',
+        component: InLibrary,
         meta: { requiresAuth: true }
       }
     ]
