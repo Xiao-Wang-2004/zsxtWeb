@@ -190,7 +190,7 @@ onMounted(() => {
 }
 
 .library-content {
-  margin-top: 20px;
+  margin-top: 0px;
   min-height: 300px;
 }
 

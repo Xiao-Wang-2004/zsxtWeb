@@ -11,6 +11,7 @@ import ProductInfo from "@/views/basic-info/ProductInfo.vue";
 import Create from "@/views/order/Create.vue";
 import InLibrary from "@/views/order/InLibrary.vue";
 import OutLibrary from "@/views/order/OutLibrary.vue";
+import Progress from "@/views/order/Progress.vue";
 
 const routes = [
   {
@@ -155,6 +156,20 @@ const routes = [
         path: '',
         name: 'OrderOutLibraryPage',
         component: OutLibrary,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/order/progress',
+    name: 'OrderProgress',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'OrderProgressPage',
+        component: Progress,
         meta: { requiresAuth: true }
       }
     ]

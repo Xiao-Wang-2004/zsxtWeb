@@ -36,6 +36,7 @@ export default {
         '/order/create': '订单生成',
         '/order/in-library': '订单入库',
         '/order/out-library': '订单出库',
+        '/order/progress': '生产进度',
       };
       return routeMap[this.$route.path] || '页面';
     }

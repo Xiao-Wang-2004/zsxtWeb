@@ -49,6 +49,10 @@ export const menuConfig = [
       {
         name: '订单出库',
         path: '/order/out-library'
+      },
+      {
+        name: '生产进度',
+        path: '/order/progress'
       }
     ]
   }
