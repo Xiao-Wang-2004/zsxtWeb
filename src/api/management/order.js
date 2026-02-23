@@ -31,6 +31,11 @@ export function getOutLibraryList(data) {
   return post('/order_management/library/getList', data);
 }
 
+// 确认出库
+export function confirmOutLibrary(data) {
+  return post('/order_management/library/out', data);
+}
+
 // 获取生产进度列表
 export function getProgressList(data) {
   return post('/order_management/progress/list', data);

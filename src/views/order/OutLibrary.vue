@@ -19,7 +19,7 @@
           <el-table-column label="操作" width="200">
             <template #default="scope">
               <el-input
-                v-model="scope.row.ship_count"
+                v-model="scope.row.out_count"
                 placeholder="本次发货数量"
                 type="number"
                 :min="0"
@@ -51,7 +51,7 @@
 // 订单出库组件
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getOutLibraryList } from '@/api/management/order'
+import { getOutLibraryList, confirmOutLibrary } from '@/api/management/order'
 
 // 表格数据
 const tableData = ref([])
@@ -60,7 +60,7 @@ const tableData = ref([])
 const initializeTableData = (data) => {
   return data.map(item => ({
     ...item,
-    ship_count: '' // 初始化发货数量为空
+    out_count: '' // 初始化发货数量为空
   }))
 }
 
@@ -96,7 +96,7 @@ const handleSelectionChange = (selection) => {
 }
 
 // 确认出库
-const handleOutLibrary = () => {
+const handleOutLibrary = async () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请先选择要出库的数据')
     return
@@ -104,7 +104,7 @@ const handleOutLibrary = () => {
   
   // 验证发货数量
   const invalidRows = selectedRows.value.filter(row => {
-    const shipCount = parseInt(row.ship_count) || 0
+    const shipCount = parseInt(row.out_count) || 0
     return shipCount <= 0 || shipCount > row.order_count
   })
   
@@ -113,9 +113,36 @@ const handleOutLibrary = () => {
     return
   }
   
-  console.log('选中的出库数据:', selectedRows.value)
-  ElMessage.success(`已选择 ${selectedRows.value.length} 条数据进行出库操作`)
-  // 这里可以添加实际的出库逻辑
+  try {
+    // 构造出库参数：订单号和发货数量为一组
+    const outParams = selectedRows.value.map(row => ({
+      orderid: row.orderid,
+      out_count: parseInt(row.out_count)
+    }))
+    
+    // 包装在list对象中传递
+    const requestData = {
+      list: outParams
+    }
+    
+    console.log('出库参数:', requestData)
+    
+    // 调用出库接口
+    const response = await confirmOutLibrary(requestData)
+    
+    if (response.code === 200) {
+      ElMessage.success(`成功出库 ${selectedRows.value.length} 条订单`)
+      // 出库成功后刷新数据
+      await getOutLibraryData()
+      // 清空选中项
+      selectedRows.value = []
+    } else {
+      ElMessage.error(response.msg || '出库失败')
+    }
+  } catch (error) {
+    console.error('出库操作失败:', error)
+    ElMessage.error('出库失败，请稍后重试')
+  }
 }
 
 // 刷新数据
