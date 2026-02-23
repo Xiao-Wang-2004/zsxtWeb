@@ -9,3 +9,12 @@ import { post } from '@/api/utils';
 export function getOrderList(params) {
   return post('/refer/order/list', params);
 }
+
+/**
+ * 入库查询列表
+ * @param {Object} params - 查询参数
+ * @returns {Promise}
+ */
+export function getInList(params) {
+  return post('/refer/in/list', params);
+}

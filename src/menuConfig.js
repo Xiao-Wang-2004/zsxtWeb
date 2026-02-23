@@ -63,6 +63,10 @@ export const menuConfig = [
       {
         name: '订单查询',
         path: '/refer/order-refer'
+      },
+      {
+        name: '入库查询',
+        path: '/refer/in-refer'
       }
     ]
   }
