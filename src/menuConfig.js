@@ -55,5 +55,15 @@ export const menuConfig = [
         path: '/order/progress'
       }
     ]
+  },
+  {
+    name: '查询管理',
+    icon: '/refer.png',
+    children: [
+      {
+        name: '订单查询',
+        path: '/refer/order-refer'
+      }
+    ]
   }
 ];

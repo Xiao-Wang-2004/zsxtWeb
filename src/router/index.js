@@ -12,6 +12,7 @@ import Create from "@/views/order/Create.vue";
 import InLibrary from "@/views/order/InLibrary.vue";
 import OutLibrary from "@/views/order/OutLibrary.vue";
 import Progress from "@/views/order/Progress.vue";
+import OrderRefer from "@/views/refer/OrderRefer.vue";
 
 const routes = [
   {
@@ -170,6 +171,20 @@ const routes = [
         path: '',
         name: 'OrderProgressPage',
         component: Progress,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/refer/order-refer',
+    name: 'OrderRefer',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'OrderReferPage',
+        component: OrderRefer,
         meta: { requiresAuth: true }
       }
     ]
