@@ -39,6 +39,7 @@ export default {
         '/order/progress': '生产进度',
         '/refer/order-refer': '订单查询',
         '/refer/in-refer': '入库查询',
+        '/refer/out-refer': '入库查询',
       };
       return routeMap[this.$route.path] || '页面';
     }

@@ -18,3 +18,12 @@ export function getOrderList(params) {
 export function getInList(params) {
   return post('/refer/in/list', params);
 }
+
+/**
+ * 出库查询列表
+ * @param {Object} params - 查询参数
+ * @returns {Promise}
+ */
+export function getOutList(params) {
+  return post('/refer/out/list', params);
+}

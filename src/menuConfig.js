@@ -67,6 +67,10 @@ export const menuConfig = [
       {
         name: '入库查询',
         path: '/refer/in-refer'
+      },
+      {
+        name: '出库查询',
+        path: '/refer/out-refer'
       }
     ]
   }

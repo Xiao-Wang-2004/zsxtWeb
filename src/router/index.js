@@ -14,6 +14,7 @@ import OutLibrary from "@/views/order/OutLibrary.vue";
 import Progress from "@/views/order/Progress.vue";
 import OrderRefer from "@/views/refer/OrderRefer.vue";
 import InRefer from "@/views/refer/InRefer.vue";
+import OutRefer from "@/views/refer/OutRefer.vue";
 
 const routes = [
   {
@@ -200,6 +201,20 @@ const routes = [
         path: '',
         name: 'InReferPage',
         component: InRefer,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/refer/out-refer',
+    name: 'OutRefer',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'OutReferPage',
+        component: OutRefer,
         meta: { requiresAuth: true }
       }
     ]
