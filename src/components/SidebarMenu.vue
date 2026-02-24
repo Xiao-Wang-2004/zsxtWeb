@@ -87,6 +87,11 @@ export default {
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
   padding: 0;
   color: #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  z-index: 20;
 }
 
 .menu-header {
@@ -95,6 +100,7 @@ export default {
   margin-bottom: 0px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .menu-header h3 {
@@ -109,6 +115,18 @@ export default {
   list-style: none;
   padding: 0;
   margin: 0;
+  overflow-y: auto;
+  flex: 1;
+  /* 隐藏滚动条但保持滚动功能 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 和 Edge */
+}
+
+/* Webkit浏览器隐藏滚动条 */
+.menu-list::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+  width: 0;
+  height: 0;
 }
 
 .menu-item {
