@@ -1,15 +1,16 @@
 <template>
-  <div class="main-layout">
-    <SidebarMenu class="sidebar" />
+  <div class="main-layout" :class="{ 'fullscreen-mode': isFullscreen }">
+    <SidebarMenu v-show="!isFullscreen" class="sidebar" />
     <div class="main-content">
-      <UserBar class="user-bar" />
-      <div class="content-wrapper">
-        <div class="page-title">{{ pageTitle }}</div>
+      <UserBar v-show="!isFullscreen" class="user-bar" />
+      <div class="content-wrapper" :class="{ 'home-wrapper': isHomePage }">
+        <div v-if="!isHomePage" class="page-title">{{ pageTitle }}</div>
         <div class="content-area">
-          <router-view />
+          <router-view @fullscreen-change="handleFullscreenChange" />
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -22,6 +23,11 @@ export default {
   components: {
     SidebarMenu,
     UserBar
+  },
+  data() {
+    return {
+      isFullscreen: false
+    };
   },
   computed: {
     pageTitle() {
@@ -41,7 +47,16 @@ export default {
         '/refer/in-refer': '入库查询',
         '/refer/out-refer': '入库查询',
       };
-      return routeMap[this.$route.path] || '页面';
+      return routeMap[this.$route.path] || '';
+    },
+    isHomePage() {
+      // 判断是否为首页
+      return this.$route.path === '/';
+    }
+  },
+  methods: {
+    handleFullscreenChange(fullscreenState) {
+      this.isFullscreen = fullscreenState;
     }
   }
 };
@@ -52,12 +67,21 @@ export default {
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
+  transition: all 0.3s ease;
 }
+
+.main-layout.fullscreen-mode {
+  height: 100vh;
+  width: 100vw;
+}
+
 
 .sidebar {
   flex-shrink: 0;
   width: 250px;
   height: 100vh;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .main-content {
@@ -71,6 +95,7 @@ export default {
 .user-bar {
   flex-shrink: 0;
   border-bottom: 1px solid #dee2e6;
+  transition: all 0.3s ease;
 }
 
 .content-wrapper {
@@ -78,6 +103,25 @@ export default {
   overflow-y: auto;
   padding: 20px;
   background-color: rgb(236, 240, 245);
+}
+
+.content-wrapper.home-wrapper {
+  padding: 0;
+  background: transparent;
+  height: 100vh;
+  margin-left: 0; /* 移除左侧边距，让内容紧贴侧边栏 */
+  transition: all 0.3s ease;
+}
+
+.main-layout.fullscreen-mode .content-wrapper.home-wrapper {
+  margin-left: 0;
+  width: 100vw;
+  padding: 0;
+}
+
+.content-wrapper.home-wrapper .content-area {
+  overflow: hidden;
+  height: 100%;
 }
 
 .page-title {
