@@ -2,7 +2,7 @@
 import CryptoJS from 'crypto-js';
 
 // API base URL - 在开发环境中使用代理前缀，在生产环境中使用实际后端地址
-const BASE_URL = import.meta.env.MODE === 'production' ? 'http://127.0.0.1:8099' : '/api';
+const BASE_URL = '/api';
 
 // Common headers
 const HEADERS = {
