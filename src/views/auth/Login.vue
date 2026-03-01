@@ -28,6 +28,7 @@
             class="input-field"
             size="large"
             show-password
+            @keyup.enter="handleLogin"
           >
             <template #prefix>
               <el-icon><Lock /></el-icon>
@@ -42,6 +43,7 @@
             class="input-field"
             size="large"
             maxlength="4"
+            @keyup.enter="handleLogin"
           >
             <template #prefix>
               <el-icon><Key /></el-icon>
@@ -64,6 +66,7 @@
           <el-icon><Right /></el-icon>
           登录
         </el-button>
+        <div class="guest-login-tip">游客登录默认账号密码为admin</div>
       </form>
     </div>
   </div>
@@ -97,6 +100,9 @@ export default {
 
     onMounted(() => {
       generateCaptcha();
+      // 设置默认账号密码为admin
+      username.value = 'admin';
+      password.value = 'admin';
     });
 
     const handleLogin = async () => {
@@ -316,5 +322,14 @@ export default {
   0%, 100% {transform: translateX(0);}
   25% {transform: translateX(-2px);}
   75% {transform: translateX(2px);}
+}
+
+.guest-login-tip {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 400;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 </style>
