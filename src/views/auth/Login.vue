@@ -137,14 +137,53 @@ export default {
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('userInfo', JSON.stringify(response)); // 存储用户信息
 
-          // 如果响应中包含token，也单独存储
+          // 如果响应中包含token,也单独存储
           if (response.data && response.data.token) {
             localStorage.setItem('authToken', response.data.token);
+                      
+            // 解析token获取用户类型
+            try {
+              const tokenParts = response.data.token.split('.');
+              if (tokenParts.length === 3) {
+                const payload = JSON.parse(atob(tokenParts[1]));
+                if (payload.type !== undefined) {
+                  localStorage.setItem('userType', payload.type.toString());
+                }
+              }
+            } catch (error) {
+              console.error('解析token失败:', error);
+            }
           } else if (response.data && typeof response.data === 'string') {
-            // 特殊情况：如果data字段本身就是一个token字符串
+            // 特殊情况:如果data字段本身就是一个token字符串
             localStorage.setItem('authToken', response.data);
+                      
+            // 尝试解析token获取用户类型
+            try {
+              const tokenParts = response.data.split('.');
+              if (tokenParts.length === 3) {
+                const payload = JSON.parse(atob(tokenParts[1]));
+                if (payload.type !== undefined) {
+                  localStorage.setItem('userType', payload.type.toString());
+                }
+              }
+            } catch (error) {
+              console.error('解析token失败:', error);
+            }
           } else if (response.token) {
             localStorage.setItem('authToken', response.token);
+                      
+            // 尝试解析token获取用户类型
+            try {
+              const tokenParts = response.token.split('.');
+              if (tokenParts.length === 3) {
+                const payload = JSON.parse(atob(tokenParts[1]));
+                if (payload.type !== undefined) {
+                  localStorage.setItem('userType', payload.type.toString());
+                }
+              }
+            } catch (error) {
+              console.error('解析token失败:', error);
+            }
           }
 
           // 获取当前用户信息并存储

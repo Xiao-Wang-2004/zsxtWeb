@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { menuConfig } from '@/menuConfig.js';
 
@@ -53,6 +53,22 @@ export default {
   setup() {
     const isOpen = reactive({});
     const router = useRouter();
+    
+    // 获取用户类型: 1-管理员, 2-员工
+    const userType = computed(() => {
+      return localStorage.getItem('userType') || '1'; // 默认为管理员
+    });
+    
+    // 根据用户类型过滤菜单
+    const filteredMenuConfig = computed(() => {
+      return menuConfig.filter(menu => {
+        // 如果用户类型为2(员工),则隐藏系统管理菜单
+        if (userType.value === '2' && menu.name === '系统管理') {
+          return false;
+        }
+        return true;
+      });
+    });
     
     const toggleMenu = (index) => {
       // 切换菜单项的展开/收起状态
@@ -70,7 +86,7 @@ export default {
     };
     
     return {
-      menuConfig,
+      menuConfig: filteredMenuConfig,
       isOpen,
       toggleMenu,
       navigateTo

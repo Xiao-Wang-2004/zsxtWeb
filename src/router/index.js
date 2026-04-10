@@ -15,6 +15,7 @@ import Progress from "@/views/order/Progress.vue";
 import OrderRefer from "@/views/refer/OrderRefer.vue";
 import InRefer from "@/views/refer/InRefer.vue";
 import OutRefer from "@/views/refer/OutRefer.vue";
+import RoleManagement from "@/views/system/RoleManagement.vue";
 
 const routes = [
   {
@@ -215,6 +216,20 @@ const routes = [
         path: '',
         name: 'OutReferPage',
         component: OutRefer,
+        meta: { requiresAuth: true }
+      }
+    ]
+  },
+  {
+    path: '/system/role-management',
+    name: 'RoleManagement',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 需要认证
+    children: [
+      {
+        path: '',
+        name: 'RoleManagementPage',
+        component: RoleManagement,
         meta: { requiresAuth: true }
       }
     ]

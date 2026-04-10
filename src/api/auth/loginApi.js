@@ -26,16 +26,56 @@ export const login = async (username, password) => {
     throw new Error(response.msg || '登录失败');
   }
   
-  // 如果响应包含token，将其保存到localStorage中
+  // 如果响应包含token,将其保存到localStorage中
   if (response.data && response.data.token) {
-    // 将token存储到localStorage，以便后续请求使用
+    // 将token存储到localStorage,以便后续请求使用
     localStorage.setItem('authToken', response.data.token);
+      
+    // 解析token获取用户类型信息
+    try {
+      const tokenParts = response.data.token.split('.');
+      if (tokenParts.length === 3) {
+        // JWT token格式: header.payload.signature
+        const payload = JSON.parse(atob(tokenParts[1]));
+        if (payload.type !== undefined) {
+          localStorage.setItem('userType', payload.type.toString());
+        }
+      }
+    } catch (error) {
+      console.error('解析token失败:', error);
+    }
   } else if (response.data && typeof response.data === 'string') {
-    // 特殊情况：如果data字段本身就是一个token字符串
+    // 特殊情况:如果data字段本身就是一个token字符串
     localStorage.setItem('authToken', response.data);
+      
+    // 尝试解析token获取用户类型
+    try {
+      const tokenParts = response.data.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        if (payload.type !== undefined) {
+          localStorage.setItem('userType', payload.type.toString());
+        }
+      }
+    } catch (error) {
+      console.error('解析token失败:', error);
+    }
   } else if (response.token) {
-    // 备选方案：如果token直接在响应根级别
+    // 备选方案:如果token直接在响应根级别
     localStorage.setItem('authToken', response.token);
+      
+    // 尝试解析token获取用户类型
+    try {
+      const tokenParts = response.token.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        if (payload.type !== undefined) {
+          localStorage.setItem('userType', payload.type.toString());
+        }
+      }
+    } catch (error) {
+      console.error('解析token失败:', error);
+    }
   }
   
   return response;

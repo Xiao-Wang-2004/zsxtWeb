@@ -73,5 +73,15 @@ export const menuConfig = [
         path: '/refer/out-refer'
       }
     ]
+  },
+  {
+    name: '系统管理',
+    icon: '/system.png',
+    children: [
+      {
+        name: '角色管理',
+        path: '/system/role-management'
+      }
+    ]
   }
 ];
